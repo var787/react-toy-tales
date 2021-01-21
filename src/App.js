@@ -1,42 +1,59 @@
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 
-import Header from './components/Header'
-import ToyForm from './components/ToyForm'
-import ToyContainer from './components/ToyContainer'
+import Header from "./components/Header";
+import ToyForm from "./components/ToyForm";
+import ToyContainer from "./components/ToyContainer";
 
+class App extends React.Component {
+	state = {
+		display: false,
+		toys: [],
+	};
 
-class App extends React.Component{
+	handleClick = () => {
+		let newBoolean = !this.state.display;
+		this.setState({
+			display: newBoolean,
+		});
+	};
 
-  state = {
-    display: false
-  }
+	componentDidMount() {
+		fetch("http://localhost:3000/toys")
+			.then((resp) => resp.json())
+			.then((toysArr) => {
+				this.setState({
+					toys: toysArr,
+				});
+			});
+	}
 
-  handleClick = () => {
-    let newBoolean = !this.state.display
+  addToy = (newToy) => {
     this.setState({
-      display: newBoolean
+      toys: [...this.state.toys, newToy]
     })
-  }
+  };
 
-  render(){
-    return (
-      <>
-        <Header/>
-        { this.state.display
-            ?
-          <ToyForm/>
-            :
-          null
-        }
-        <div className="buttonContainer">
-          <button onClick={this.handleClick}> Add a Toy </button>
-        </div>
-        <ToyContainer/>
-      </>
-    );
-  }
+	deleteToy = (id) => {
+		const updatedToys = this.state.toys.filter((toyObj) => toyObj.id !== id);
 
+		this.setState({
+			toys: updatedToys
+		});
+	};
+
+	render() {
+		return (
+			<>
+				<Header />
+				{this.state.display ? <ToyForm addToy={this.addToy} /> : null}
+				<div className="buttonContainer">
+					<button onClick={this.handleClick}> Add a Toy </button>
+				</div>
+				<ToyContainer toysArr={this.state.toys} deleteToy={this.deleteToy} />
+			</>
+		);
+	}
 }
 
 export default App;
